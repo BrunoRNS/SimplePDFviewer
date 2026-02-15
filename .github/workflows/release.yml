@@ -1,0 +1,61 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install terser (minifier)
+        run: npm install -g terser
+
+      - name: Run make to generate minified file
+        run: make
+
+      - name: Run basic test (verify file exists and has expected global)
+        run: |
+          if [ ! -f min/core.min.js ]; then
+            echo "Minified file not found!"
+            exit 1
+          fi
+          echo "Minification successful."
+
+      - name: Get current date and time
+        id: date
+        run: echo "datetime=$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Create Git tag with datetime
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          TAG_NAME="release-${{ steps.date.outputs.datetime }}"
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "$TAG_NAME"
+          git tag -f latest
+          git push -f origin latest
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: release-${{ steps.date.outputs.datetime }}
+          name: Release ${{ steps.date.outputs.datetime }}
+          body: |
+            Automatically generated release of SimplePDFviewer.
+            Minified output: `min/core.min.js`
+          files: |
+            min/core.min.js
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

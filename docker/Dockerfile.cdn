@@ -1,0 +1,8 @@
+FROM docker.io/nginx:stable-trixie
+
+COPY ./docker/nginx-cdn.conf /etc/nginx/conf.d/default.conf
+
+WORKDIR /usr/share/nginx/html
+COPY ./min/core.min.js ./core.min.js
+
+EXPOSE 80

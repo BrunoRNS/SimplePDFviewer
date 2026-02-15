@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  cdn:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cdn
+
+    ports:
+      - "8081:80"
+
+    volumes:
+      - ./min:/usr/share/nginx/html
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+
+    ports:
+      - "8080:80"
+
+    depends_on:
+      - cdn
+
+    environment:
+      - CDN_URL=http://cdn:80
+
+    volumes:
+      - ./test-example:/usr/share/nginx/html

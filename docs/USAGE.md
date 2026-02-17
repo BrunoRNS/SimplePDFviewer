@@ -179,6 +179,7 @@ Initializes a PDF viewer instance.
 - `course` (Object, required): Course data object with structure detailed in [Course Data Format](#course-data-format)
 - `options` (Object, optional): Configuration options
   - `onError` (Function): Callback function for error handling. Called with error object: `{ type, message, error }`
+  - `colorTheme` (String): Optional hex color for custom theme (e.g., `#FF5722`). Auto-adjusts if too bright/dark. Colors are auto-calculated for all UI elements.
 
 **Returns:**
 
@@ -240,6 +241,37 @@ Clean up the viewer instance. Removes event listeners and cancels rendering task
 viewer.destroy();
 ```
 
+#### setTheme(hex)
+
+Change the theme color after initialization. Automatically calculates all UI colors from the provided hex color.
+
+**Parameters:**
+- `hex` (String): Hex color code (e.g., `#FF5722`, `#F52`)
+
+**Returns:** `true` if successful, `false` if invalid format or lightness out of range
+
+**Example:**
+
+```javascript
+// Change to pink theme
+if (viewer.setTheme('#E91E63')) {
+  console.log('Theme changed successfully');
+} else {
+  console.error('Invalid color format');
+}
+
+// With preview functionality
+document.getElementById('colorPicker').addEventListener('change', (e) => {
+  viewer.setTheme(e.target.value);
+});
+```
+
+**Behavior:**
+- Auto-adjusts very dark colors (< 15% lightness) to #2a2a2a minimum
+- Auto-adjusts very bright colors (> 85% lightness) to #e8e8e8 maximum
+- Maintains hue and saturation while adjusting lightness when needed
+- Re-injects CSS to update all UI colors immediately
+
 ### Instance Properties
 
 - `currentModule` (number): Index of current module (0-based)
@@ -248,6 +280,7 @@ viewer.destroy();
 - `pdfDoc` (pdfjsLib.PDFDocument): The pdf.js document object (null before loading)
 - `renderTask` (pdfjsLib.RenderTask): Current render task (null if not rendering)
 - `onError` (Function): Error callback function
+- `themeColors` (Object): Current theme colors object with properties like `primary`, `primaryHover`, `primaryActive`, `sidebarPrimary`, etc.
 
 ## Course Data Format
 
@@ -336,7 +369,7 @@ SimplePDFviewer injects default CSS classes. Override them with your own styles:
 </style>
 ```
 
-### 2. Custom Colors
+### 2. Custom Colors (Legacy CSS Method)
 
 ```css
 .pdf-viewer-sidebar {
@@ -354,6 +387,86 @@ SimplePDFviewer injects default CSS classes. Override them with your own styles:
 
 .pdf-viewer-chapter-item.active {
   background: #0066cc;
+}
+```
+
+### 2a. Theme Customization (NEW - Recommended for Global Color Changes)
+
+Use the new `colorTheme` option to automatically generate all UI colors from a single hex color. Colors are intelligently calculated to maintain proper contrast and visual hierarchy.
+
+#### During Initialization
+
+```javascript
+const viewer = PDFViewer.init(
+  document.getElementById('viewer'),
+  course,
+  {
+    colorTheme: '#FF5722'  // Use Material Design Deep Orange
+  }
+);
+```
+
+#### Dynamic Theme Switching (After Initialization)
+
+```javascript
+const viewer = PDFViewer.init(container, course);
+
+// Change theme later
+viewer.setTheme('#E91E63');   // Pink
+viewer.setTheme('#4CAF50');   // Green
+viewer.setTheme('#2196F3');   // Blue
+viewer.setTheme('#FF9800');   // Orange
+```
+
+#### How It Works
+
+- Provides a single **hex color** as the primary theme color
+- Library **automatically calculates**:
+  - Darker shades for hover and active states
+  - Muted/darker sidebar color with reduced saturation
+  - Maintains proper contrast for accessibility
+  - Uses HSL color space for intelligent scaling
+
+#### auto-adjustment for Edge Cases
+
+The system automatically adjusts colors that are too bright or too dark:
+
+```javascript
+viewer.setTheme('#000000');   // Auto-adjusted to #2a2a2a (minimum usable darkness)
+viewer.setTheme('#FFFFFF');   // Auto-adjusted to #e8e8e8 (maximum usable brightness)
+viewer.setTheme('#FF5722');   // Normal - accepted as-is
+```
+
+**Returns:** `true` if successful, `false` if invalid format
+
+#### Color Format Validation
+
+**Accepted formats:**
+- `#RRGGBB` (e.g., `#FF5722`)
+- `#RGB` (e.g., `#F52`)
+
+**Invalid formats (will be rejected):**
+- `rgb(255, 87, 34)` ❌
+- `FF5722` (missing #) ❌
+- `#GGHHII` (invalid hex) ❌
+
+#### Example: Theme Picker
+
+```javascript
+// HTML
+<button onclick="changeTheme('#FF5722')">Orange</button>
+<button onclick="changeTheme('#E91E63')">Pink</button>
+<input type="text" id="colorInput" placeholder="#FF5722">
+<button onclick="applyCustomColor()">Apply</button>
+
+// JavaScript
+function applyCustomColor() {
+  const color = document.getElementById('colorInput').value;
+  if (viewer.setTheme(color)) {
+    alert(`Theme changed to ${color}`);
+  } else {
+    alert(`Invalid color: ${color}`);
+  }
 }
 ```
 

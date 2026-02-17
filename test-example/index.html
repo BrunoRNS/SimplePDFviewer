@@ -11,6 +11,23 @@
             .error { color: #d32f2f; }
             .success { color: #388e3c; }
             code { background: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+            .controls { margin-bottom: 20px; }
+            .controls button {
+                padding: 8px 15px;
+                margin-right: 10px;
+                cursor: pointer;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                background: #f0f0f0;
+            }
+            .controls button:hover { background: #e0e0e0; }
+            .controls input {
+                padding: 8px;
+                margin-right: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                width: 120px;
+            }
         </style>
     </head>
     <body>
@@ -21,11 +38,40 @@
             </p>
             <p id="status">Loading...</p>
         </div>
+
+        <div class="controls">
+            <h3>Theme Customization (Optional)</h3>
+            <input type="text" id="colorInput" placeholder="e.g. #FF5722" value="#FF5722">
+            <button onclick="changeTheme()">Change Theme</button>
+            <button onclick="changeTheme('#3498db')">Blue (Default)</button>
+            <button onclick="changeTheme('#E91E63')">Pink</button>
+            <button onclick="changeTheme('#4CAF50')">Green</button>
+            <button onclick="changeTheme('#FF9800')">Orange</button>
+            <button onclick="changeTheme('#9C27B0')">Purple</button>
+        </div>
+
         <div id="viewer"></div>
 
         <script type="text/javascript" src="http://localhost:8081/core.min.js"></script>
 
         <script type="text/javascript">
+            let viewer = null;
+
+            function changeTheme() {
+                if (!viewer) {
+                    alert('Viewer not initialized yet');
+                    return;
+                }
+                const colorInput = document.getElementById('colorInput');
+                const color = colorInput.value || '#FF5722';
+                const success = viewer.setTheme(color);
+                if (success) {
+                    alert(`Theme changed to ${color}`);
+                } else {
+                    alert(`Invalid color: ${color}`);
+                }
+            }
+
             function initializeViewer() {
                 if (typeof PDFViewer === 'undefined') {
                     document.getElementById('status').innerHTML = `
@@ -41,10 +87,12 @@
                 fetch('course.json')
                     .then(response => response.json())
                     .then(course => {
-                        const viewer = PDFViewer.init(
+                        // Initialize with optional custom theme
+                        viewer = PDFViewer.init(
                             document.getElementById('viewer'),
                             course,
                             {
+                                colorTheme: '#FF5722', // Optional: Use custom theme
                                 onError: (error) => {
                                     console.error('Viewer error:', error);
                                     document.getElementById('status').innerHTML += `
@@ -57,7 +105,7 @@
                         if (viewer) {
                             document.getElementById('status').innerHTML += `
                             <br><span class="success">
-                                Viewer initialized successfully
+                                Viewer initialized successfully (Theme: #FF5722)
                             </span>`;
                         } else {
                             document.getElementById('status').innerHTML += `

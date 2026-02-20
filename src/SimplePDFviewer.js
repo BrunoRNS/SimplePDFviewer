@@ -274,8 +274,12 @@
             .pdf-viewer-sidebar.collapsed .pdf-viewer-chapter-item { padding: 8px 0; text-align: center; }
             .pdf-viewer-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
             .pdf-viewer-controls { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 10px; background: #fff; border-bottom: 1px solid ${theme.lightBorder}; z-index: 10; }
-            .pdf-viewer-canvas-container { flex: 1; overflow: auto; padding: 5px; background: #525659; scroll-behavior: smooth; width: 100%; display: block; box-sizing: border-box; }
+            .pdf-viewer-canvas-container { position: relative; flex: 1; overflow: auto; padding: 5px; background: #525659; scroll-behavior: smooth; width: 100%; display: block; box-sizing: border-box; }
             .pdf-viewer-canvas { width: 100%; height: auto; box-shadow: 0 0 15px rgba(0,0,0,0.3); background: #fff; }
+            .pdf-viewer-text-layer { position: absolute; top: 0; left: 0; right: 0; z-index: 1; user-select: text; }
+            .pdf-viewer-text-layer > span { position: absolute; white-space: pre; cursor: text; color: transparent; -moz-user-select: text; -webkit-user-select: text; user-select: text; }
+            .pdf-viewer-text-layer .highlight { background: rgba(255, 255, 0, 0.3); }
+            .pdf-viewer-text-layer.disabled { pointer-events: none; user-select: none; }
             .pdf-viewer-loading-overlay { position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; z-index: 20; }
             .pdf-viewer-footer { padding: 10px; background: #f0f0f0; border-top: 1px solid ${theme.lightBorder}; text-align: center; font-size: 12px; color: #666; }
             .pdf-viewer-chapter-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid ${theme.sidebarBorder}; transition: background 0.2s; }
@@ -517,12 +521,15 @@
             zoom: 100,
             viewportX: 0,
             viewportY: 0,
+            enableTextSelection: options.enableTextSelection !== false,
+            currentTextLayer: null,
 
             nextPage: () => goToNext(),
             prevPage: () => goToPrev(),
             loadChapter: (m, c) => loadChapter(m, c),
             setTheme: (hex) => setTheme(hex),
             setZoom: (value) => applyZoom(value),
+            setTextSelectionEnabled: (enabled) => setTextSelectionEnabled(enabled),
             destroy: () => cleanup()
         };
 
@@ -563,6 +570,7 @@
 
                 <div class="pdf-viewer-canvas-container" tabindex="0">
                     <canvas class="pdf-viewer-canvas" role="img" aria-label="PDF page content"></canvas>
+                    <div class="pdf-viewer-text-layer"></div>
                 </div>
 
                 <div class="pdf-viewer-footer" role="status" aria-live="polite" aria-atomic="true">
@@ -848,7 +856,9 @@
                         viewport: scaledViewport
                     });
 
-                    return instance.renderTask.promise;
+                    return instance.renderTask.promise.then(() => {
+                        return renderTextLayer(page, scaledViewport);
+                    });
                 } catch (err) {
                     console.error('Error rendering page:', err);
                     instance.onError(
@@ -862,6 +872,65 @@
                     { type: 'render', message: 'Failed to render page', error: err }
                 );
             });
+        }
+
+        /**
+         * Renders a transparent text layer for text selection.
+         * Leverages pdf.js TextLayerBuilder to create selectable text.
+         * @param {PDFPage} page - The PDF page object
+         * @param {Viewport} scaledViewport - The scaled viewport for positioning
+         * @returns {Promise} - Resolves when text layer is rendered
+         */
+        async function renderTextLayer(page, scaledViewport) {
+            if (!instance.enableTextSelection) return;
+
+            try {
+                // Get the text layer container
+                const textLayerDiv = container.querySelector('.pdf-viewer-text-layer');
+                if (!textLayerDiv) return;
+
+                // Clear previous text layer
+                textLayerDiv.innerHTML = '';
+
+                // Get text content from the page
+                const textContent = await page.getTextContent();
+
+                // Create TextLayerBuilder instance
+                const textLayerBuilder = new pdfjsLib.TextLayerBuilder({
+                    textLayerDiv: textLayerDiv,
+                    pageIndex: page.pageIndex,
+                    viewport: scaledViewport,
+                    textContent: textContent,
+                    enhanceTextSelection: true
+                });
+
+                // Render the text layer
+                textLayerBuilder.render();
+
+                // Store reference for cleanup
+                instance.currentTextLayer = textLayerBuilder;
+            } catch (err) {
+                console.warn('Failed to render text layer:', err);
+                // Continue gracefully - text layer is optional
+            }
+        }
+
+        /**
+         * Enable or disable text selection at runtime.
+         * @param {boolean} enabled - Whether to enable text selection
+         */
+        function setTextSelectionEnabled(enabled) {
+            instance.enableTextSelection = enabled;
+            const textLayer = container.querySelector('.pdf-viewer-text-layer');
+            if (textLayer) {
+                if (enabled) {
+                    textLayer.style.pointerEvents = 'auto';
+                    textLayer.classList.remove('disabled');
+                } else {
+                    textLayer.style.pointerEvents = 'none';
+                    textLayer.classList.add('disabled');
+                }
+            }
         }
 
         /**
@@ -1159,6 +1228,10 @@
             }
             if (instance.resizeObserver) instance.resizeObserver.disconnect();
             if (instance.renderTask) instance.renderTask.cancel();
+            if (instance.currentTextLayer) {
+                instance.currentTextLayer.cancel();
+                instance.currentTextLayer = null;
+            }
         }
 
         updateZoomUI();

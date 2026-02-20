@@ -15,6 +15,8 @@ A lightweight, standalone JavaScript PDF viewer library that wraps Mozilla's pdf
 - **Accessible** - ARIA labels, keyboard navigation, semantic HTML.
 - **Performance Optimized** - Debounced rendering, high-DPI support, efficient memory management.
 - **Auto-Scaling** - PDFs automatically fit container width.
+- **Zoom Controls** - Built-in zoom in/out buttons and manual zoom input (100-200%).
+- **Smart Navigation** - Automatic zoom and scroll reset when navigating between pages and chapters.
 - **Keyboard Navigation** - Arrow keys to navigate pages.
 - **Well-Documented** - Comprehensive guides and examples.
 
@@ -50,7 +52,9 @@ You now have a fully functional PDF viewer with:
 
 - Chapter navigation sidebar.
 - Previous/Next page buttons.
+- Zoom in/out controls with manual zoom input.
 - Keyboard controls (arrow keys).
+- Automatic zoom and scroll reset on navigation.
 - Responsive mobile design.
 - Error handling.
 
@@ -128,6 +132,10 @@ const viewer = PDFViewer.init(container, course, {
 viewer.nextPage();
 viewer.prevPage();
 
+// Zoom control
+viewer.setZoom(150); // Set to 150%
+console.log(viewer.zoom); // Current zoom level
+
 // Load specific chapter
 viewer.loadChapter(0, 1); // Module 0, Chapter 1
 
@@ -135,6 +143,9 @@ viewer.loadChapter(0, 1); // Module 0, Chapter 1
 console.log(viewer.currentPage);     // 1
 console.log(viewer.currentModule);   // 0
 console.log(viewer.currentChapter);  // 0
+
+// Note: Zoom and scroll automatically reset to 100% and top-left (0,0)
+// when navigating between pages or chapters
 
 // Clean up when done
 viewer.destroy();
@@ -156,6 +167,30 @@ viewer.destroy();
 .pdf-viewer-btn:hover {
   background: #0052a3;
 }
+```
+
+### Theme Customization
+
+```javascript
+// Dynamic theme switching with automatic color generation
+const viewer = PDFViewer.init(container, course, {
+  colorTheme: '#FF5722'  // Material Design Deep Orange
+});
+
+// Change theme later
+viewer.setTheme('#E91E63');   // Pink
+viewer.setTheme('#4CAF50');   // Green
+viewer.setTheme('#2196F3');   // Blue
+```
+
+### Zoom Control
+
+```javascript
+// Set zoom level (100-200%)
+viewer.setZoom(150);
+
+// Zoom resets automatically when navigating pages
+viewer.nextPage(); // zoom resets to 100%
 ```
 
 ### Error Handling

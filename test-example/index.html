@@ -6,7 +6,7 @@
         <title>SimplePDFviewer Test - CDN Loading</title>
         <style type="text/css">
             body { font-family: Arial, sans-serif; margin: 20px; }
-            #viewer { height: 80vh; border: 1px solid #ccc; }
+            #viewer { height: 80dvh; border: 1px solid #ccc; }
             .info { background: #f0f0f0; padding: 10px; margin-bottom: 20px; border-radius: 4px; }
             .error { color: #d32f2f; }
             .success { color: #388e3c; }
@@ -34,16 +34,16 @@
         <h1>SimplePDFviewer Test</h1>
         <div class="info">
             <p>
-                Loading SimplePDFviewer from CDN: <code>http://localhost:8081/core.min.js</code>
+                Loading SimplePDFviewer from CDN: <code>http://localhost:8001/core.min.js</code>
             </p>
             <p id="status">Loading...</p>
         </div>
 
         <div class="controls">
             <h3>Theme Customization (Optional)</h3>
-            <input type="text" id="colorInput" placeholder="e.g. #FF5722" value="#FF5722">
+            <input type="text" id="colorInput" placeholder="e.g. #3498DB" value="#3498DB">
             <button onclick="changeTheme()">Change Theme</button>
-            <button onclick="changeTheme('#3498db')">Blue (Default)</button>
+            <button onclick="changeTheme('#3498DB')">Blue (Default)</button>
             <button onclick="changeTheme('#E91E63')">Pink</button>
             <button onclick="changeTheme('#4CAF50')">Green</button>
             <button onclick="changeTheme('#FF9800')">Orange</button>
@@ -52,24 +52,35 @@
 
         <div id="viewer"></div>
 
-        <script type="text/javascript" src="http://localhost:8081/core.min.js"></script>
+        <script type="text/javascript" src="http://localhost:8001/core.min.js"></script>
 
         <script type="text/javascript">
             let viewer = null;
+            const COLOR_STORAGE_KEY = 'pdfViewer_theme';
+            const DEFAULT_COLOR = '#3498DB';
 
-            function changeTheme() {
+            function changeTheme(color) {
                 if (!viewer) {
                     alert('Viewer not initialized yet');
                     return;
                 }
                 const colorInput = document.getElementById('colorInput');
-                const color = colorInput.value || '#FF5722';
-                const success = viewer.setTheme(color);
-                if (success) {
-                    alert(`Theme changed to ${color}`);
-                } else {
-                    alert(`Invalid color: ${color}`);
+                if (color) {
+                    colorInput.value = color;
                 }
+                const colorValue = colorInput.value || DEFAULT_COLOR;
+                const success = viewer.setTheme(colorValue);
+                if (success) {
+                    localStorage.setItem(COLOR_STORAGE_KEY, colorValue);
+                    alert(`Theme changed to ${colorValue}`);
+                } else {
+                    alert(`Invalid color: ${colorValue}`);
+                }
+            }
+
+            function getSavedTheme() {
+                const saved = localStorage.getItem(COLOR_STORAGE_KEY);
+                return saved && /^#[0-9A-Fa-f]{6}$/.test(saved) ? saved : DEFAULT_COLOR;
             }
 
             function initializeViewer() {
@@ -84,15 +95,18 @@
                     <span class="success">SimplePDFviewer loaded from CDN successfully</span>
                 `;
 
+                const savedTheme = getSavedTheme();
+                const colorInput = document.getElementById('colorInput');
+                colorInput.value = savedTheme;
+
                 fetch('course.json')
                     .then(response => response.json())
                     .then(course => {
-                        // Initialize with optional custom theme
                         viewer = PDFViewer.init(
                             document.getElementById('viewer'),
                             course,
                             {
-                                colorTheme: '#FF5722', // Optional: Use custom theme
+                                colorTheme: savedTheme,
                                 onError: (error) => {
                                     console.error('Viewer error:', error);
                                     document.getElementById('status').innerHTML += `
@@ -103,9 +117,10 @@
                             }
                         );
                         if (viewer) {
+                            colorInput.value = savedTheme;
                             document.getElementById('status').innerHTML += `
                             <br><span class="success">
-                                Viewer initialized successfully (Theme: #FF5722)
+                                Viewer initialized successfully (Theme: ${savedTheme})
                             </span>`;
                         } else {
                             document.getElementById('status').innerHTML += `

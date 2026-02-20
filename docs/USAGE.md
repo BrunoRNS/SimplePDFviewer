@@ -96,6 +96,8 @@ This structure allows you to organize related PDFs and navigate between them sea
 - **Keyboard navigation**: Use arrow keys (←/→) to navigate
 - **Responsive design**: Sidebar collapses on mobile, toggleable with menu button
 - **Auto-scaling**: PDF pages automatically scale to fit the container
+- **Automatic zoom reset**: Zoom automatically resets to 100% when navigating between pages or chapters
+- **Automatic scroll reset**: Page scroll position automatically resets to top-left when navigating between pages or chapters
 
 ## Basic Usage
 
@@ -241,11 +243,39 @@ Clean up the viewer instance. Removes event listeners and cancels rendering task
 viewer.destroy();
 ```
 
+#### setZoom(value)
+
+Set the zoom level for the current page (100-200%).
+
+**Parameters:**
+
+- `value` (Number): Zoom level between 100 (100%) and 200 (200%)
+
+**Example:**
+
+```javascript
+// Zoom to 150%
+viewer.setZoom(150);
+
+// Current zoom level
+console.log(viewer.zoom); // e.g., 150
+```
+
+**Behavior:**
+
+- Automatically clamps value to 100-200 range
+- Preserves scroll position proportionally when possible
+- Updates UI controls immediately
+- Page is re-rendered at the new zoom level
+
+**Note:** Zoom automatically resets to 100% when navigating to a different page or chapter for better UX.
+
 #### setTheme(hex)
 
 Change the theme color after initialization. Automatically calculates all UI colors from the provided hex color.
 
 **Parameters:**
+
 - `hex` (String): Hex color code (e.g., `#FF5722`, `#F52`)
 
 **Returns:** `true` if successful, `false` if invalid format or lightness out of range
@@ -267,6 +297,7 @@ document.getElementById('colorPicker').addEventListener('change', (e) => {
 ```
 
 **Behavior:**
+
 - Auto-adjusts very dark colors (< 15% lightness) to #2a2a2a minimum
 - Auto-adjusts very bright colors (> 85% lightness) to #e8e8e8 maximum
 - Maintains hue and saturation while adjusting lightness when needed
@@ -277,10 +308,44 @@ document.getElementById('colorPicker').addEventListener('change', (e) => {
 - `currentModule` (number): Index of current module (0-based)
 - `currentChapter` (number): Index of current chapter (0-based)
 - `currentPage` (number): Current page number (1-based)
+- `zoom` (number): Current zoom level (100-200, default 100). Automatically resets to 100 when navigating between pages or chapters
 - `pdfDoc` (pdfjsLib.PDFDocument): The pdf.js document object (null before loading)
 - `renderTask` (pdfjsLib.RenderTask): Current render task (null if not rendering)
 - `onError` (Function): Error callback function
 - `themeColors` (Object): Current theme colors object with properties like `primary`, `primaryHover`, `primaryActive`, `sidebarPrimary`, etc.
+
+### Navigation Behavior
+
+When navigating between pages or chapters using `nextPage()`, `prevPage()`, or `loadChapter()`, the viewer automatically applies the following state resets for optimal UX:
+
+#### Automatic State Resets
+
+- **Zoom**: Resets to 100% to ensure the entire page is visible by default
+- **Scroll Position**: Resets to top-left (0, 0) so the new page starts at the beginning
+- **UI State**: Previous/Next buttons update based on current position in the course
+
+#### Implementation Details
+
+- Scroll reset uses multiple simultaneous methods to ensure reliability across browsers
+- Scroll restoration and zoom restoration happen after page rendering completes
+- These behaviors are transparent to the user and cannot be disabled
+
+#### Example: Custom Navigation with Reset Awareness
+
+```javascript
+const viewer = PDFViewer.init(container, course);
+
+// Listen for manual navigation
+document.getElementById('next-btn').onclick = () => {
+  viewer.nextPage(); // Auto-resets zoom and scroll
+  console.log(`Zoom: ${viewer.zoom}%, Page: ${viewer.currentPage}`);
+};
+
+// Jump to a chapter - also triggers auto-reset
+document.getElementById('jump-chapter').onclick = () => {
+  viewer.loadChapter(1, 0); // Zoom and scroll auto-reset
+};
+```
 
 ## Course Data Format
 
@@ -442,13 +507,15 @@ viewer.setTheme('#FF5722');   // Normal - accepted as-is
 #### Color Format Validation
 
 **Accepted formats:**
+
 - `#RRGGBB` (e.g., `#FF5722`)
 - `#RGB` (e.g., `#F52`)
 
 **Invalid formats (will be rejected):**
-- `rgb(255, 87, 34)` ❌
-- `FF5722` (missing #) ❌
-- `#GGHHII` (invalid hex) ❌
+
+- `rgb(255, 87, 34)`
+- `FF5722` (missing #)
+- `#GGHHII` (invalid hex)
 
 #### Example: Theme Picker
 
@@ -727,9 +794,8 @@ Cache-Control: public, max-age=31536000
 
 1. **No text selection** in PDFs (by design for simplicity)
 2. **No search functionality** (use pdf.js directly if needed)
-3. **No zoom controls** (use CSS transforms for workaround)
-4. **No annotations** (view-only)
-5. **Performance degrades** with very large PDFs (500+ pages per chapter)
+3. **No annotations** (view-only)
+4. **Performance degrades** with very large PDFs (500+ pages per chapter)
 
 ### Known Issues
 
@@ -740,7 +806,7 @@ Cache-Control: public, max-age=31536000
 
 ### Workarounds
 
-**For zoom:**
+**For CSS-based zoom scaling (alternative to built-in controls):**
 
 ```css
 .pdf-viewer-canvas-container {
@@ -748,6 +814,8 @@ Cache-Control: public, max-age=31536000
   transform-origin: top center;
 }
 ```
+
+Note: Built-in zoom controls (100-200%) are now available and are recommended for better UX.
 
 **For search:**
 Consider using the full pdf.js library or adding a search layer over the viewer.

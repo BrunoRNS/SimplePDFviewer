@@ -38,7 +38,22 @@ For optimal experience on older browsers, consider adding polyfills for ResizeOb
 
 ### Q: Can I add zoom controls to the viewer?
 
-**A:** The library doesn't include zoom controls by default to keep it lightweight. However, you can add CSS transforms to the container:
+**A:** Yes! SimplePDFviewer now includes **built-in zoom controls** (100-200% zoom range) with:
+
+- Zoom in/out buttons in the toolbar
+- Manual zoom input field
+- Automatic zoom reset to 100% when navigating pages
+
+```javascript
+// Control zoom programmatically
+viewer.setZoom(150); // Set to 150%
+console.log(viewer.zoom); // Current zoom: 150
+
+// Click Next/Previous - zoom automatically resets to 100%
+viewer.nextPage(); // zoom = 100 after navigation
+```
+
+For CSS-based scaling (alternative), you can still use transforms:
 
 ```css
 .pdf-viewer-canvas-container {
@@ -47,7 +62,7 @@ For optimal experience on older browsers, consider adding polyfills for ResizeOb
 }
 ```
 
-Or use buttons to toggle zoom levels via JavaScript.
+See [Zoom Control](./USAGE.md#setzoomvalue) in the USAGE guide for details.
 
 ### Q: Does the viewer support search functionality?
 
@@ -64,6 +79,22 @@ function jumpToChapter(moduleIndex, chapterIndex) {
 ```
 
 For page numbers within a chapter, you'd need to extend the library with keyboard input or button controls.
+
+### Q: Why does zoom reset to 100% when I navigate pages?
+
+**A:** SimplePDFviewer automatically resets zoom to 100% and scroll position to the top-left (0,0) when you navigate between pages or chapters. This is by design for better UX - it ensures:
+
+- You see the entire new page without unexpected zoom levels
+- Navigation feels consistent and predictable
+- You don't have to manually re-orient after switching pages
+
+This happens automatically on:
+
+- `nextPage()` / Previous page button clicks
+- `loadChapter()` / sidebar chapter selection
+- Arrow key navigation
+
+The reset is transparent and cannot be disabled.
 
 ## Troubleshooting
 

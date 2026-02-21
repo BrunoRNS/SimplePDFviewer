@@ -26,15 +26,18 @@ A lightweight, standalone JavaScript PDF viewer library that wraps Mozilla's pdf
 ### 1. Add to Your HTML
 
 ```html
-<div id="viewer" style="height: 100vh; width: 100%;"></div>
+<div id="viewer" style="height: 100dvh; width: 100%;"></div>
 
 <script src="https://cdn.jsdelivr.net/gh/BrunoRNS/SimplePDFviewer@latest/min/core.min.js"></script>
 <script type="text/javascript">
   const course = {
+    id: "mycourseid",
     title: "My Course",
     modules: [{
+      id: "module1id",
       title: "Module 1",
       chapters: [{
+        id: "chapter1id",
         title: "Chapter 1",
         pdf: "https://example.com/chapter1.pdf"
       }]
@@ -103,17 +106,22 @@ SimplePDFviewer organizes PDFs hierarchically:
 
 ```javascript
 {
+  id: "course-001",
   title: "Course Title",
   modules: [{
+    id: "mod-001",
     title: "Module 1",
     chapters: [{
+      id: "chap-001",
       title: "Chapter 1",
       pdf: "url/to/pdf.pdf"
     }, {
+      id: "chap-002",
       title: "Chapter 2",
       pdf: "url/to/pdf2.pdf"
     }]
   }, {
+    id: "mod-002",
     title: "Module 2",
     chapters: [/* ... */]
   }]
@@ -261,17 +269,6 @@ docker-compose up
 
 See [BUILD.md](./docs/BUILD.md) for complete build instructions and Docker setup.
 
-## Browser Support
-
-| Browser | Version | Status     |
-|---------|---------|------------|
-| Chrome  | 45+     | Full       |
-| Firefox | 40+     | Full       |
-| Safari  | 10+     | Full       |
-| Edge    | 12+     | Full       |
-| IE      | 11      | Limited    |
-| Mobile  | Latest  | Full       |
-
 ## Performance
 
 - **File Size**: ~15KB minified (gzips to ~4KB)
@@ -336,13 +333,6 @@ See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for detailed instructions.
 - **Feature Requests**: Use GitHub Issues with `[feature request]` label
 - **Usage Questions**: Check [FAQ.md](./docs/FAQ.md) or [USAGE.md](./docs/USAGE.md)
 - **Contributing**: See [CONTRIBUTING.md](./docs/CONTRIBUTING.md)
-
-## Project Status
-
-- **Status**: Active development
-- **Latest Version**: Rolling release
-- **Last Updated**: February 2026
-- **Maintenance**: Community maintained
 
 ## Example Use Cases
 

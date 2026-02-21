@@ -1,153 +1,101 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>SimplePDFviewer Test - CDN Loading</title>
-        <style type="text/css">
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            #viewer { height: 80dvh; border: 1px solid #ccc; }
-            .info { background: #f0f0f0; padding: 10px; margin-bottom: 20px; border-radius: 4px; }
-            .error { color: #d32f2f; }
-            .success { color: #388e3c; }
-            code { background: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
-            .controls { margin-bottom: 20px; }
-            .controls button {
-                padding: 8px 15px;
-                margin-right: 10px;
-                cursor: pointer;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                background: #f0f0f0;
-            }
-            .controls button:hover { background: #e0e0e0; }
-            .controls input {
-                padding: 8px;
-                margin-right: 10px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                width: 120px;
-            }
-        </style>
+        <title>SimplePDFviewer: Test Suite</title>
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="./styles.css">
+        <link rel="icon" type="image/png" href="./favicon.png">
     </head>
     <body>
-        <h1>SimplePDFviewer Test</h1>
-        <div class="info">
-            <p>
-                Loading SimplePDFviewer from CDN: <code>http://localhost:8001/core.min.js</code>
-            </p>
-            <p id="status">Loading...</p>
+        <div class="container">
+            <header>
+                <h1>SimplePDFviewer Test Suite</h1>
+                <p>A collection of test pages for development and debugging.</p>
+            </header>
+            <ul class="test-grid">
+                <li class="test-card" id="basic-usage-example">
+                    <a href="./001_basic_usage/index.html">
+                        <img src="./001_basic_usage/favicon.png"
+                            alt="Theme icon" class="test-icon">
+                        <div class="test-title">Simple Usage Example</div>
+                        <div class="test-description">Start using
+                            SimplePDFviewer with a minimal setup.</div>
+                    </a>
+                </li>
+                <li class="test-card" id="external-json-example">
+                    <a href="./002_external_json_usage/index.html">
+                        <img src="./002_external_json_usage/favicon.png"
+                            alt="Theme icon"
+                            class="test-icon">
+                        <div class="test-title">Loading JSON data from
+                            file</div>
+                        <div class="test-description">Loads JSON data from an
+                            external
+                            file and renders it in the viewer.</div>
+                    </a>
+                </li>
+                <li class="test-card" id="themes-usage-example">
+                    <a href="./003_themes_usage/index.html">
+                        <img src="./003_themes_usage/favicon.png"
+                            alt="Theme icon"
+                            class="test-icon">
+                        <div class="test-title">Theme Customization</div>
+                        <div class="test-description">Dynamic theme switching
+                            with color picker and preset buttons. Validates
+                            color input and applies to viewer.</div>
+                    </a>
+                </li>
+                <li class="test-card" id="multiple-pdf-example">
+                    <a href="./004_multiple_pdfs_usage/index.html">
+                        <img src="./004_multiple_pdfs_usage/favicon.png"
+                            alt="Theme icon"
+                            class="test-icon">
+                        <div class="test-title">Multiple PDFs</div>
+                        <div class="test-description">This example
+                            demonstrates how to load multiple PDFs and JSONs and
+                            switch between them.</div>
+                    </a>
+                </li>
+                <li class="test-card" id="cdn-loading-example">
+                    <a href="./005_cdn_usage/index.html">
+                        <img src="./005_cdn_usage/favicon.png" alt="Theme icon"
+                            class="test-icon">
+                        <div class="test-title">CDN loading advanced
+                            example.</div>
+                        <div class="test-description">This example demonstrates
+                            how to load SimplePDFviewer from CDN and use it with
+                            an advanced setup.</div>
+                    </a>
+                </li>
+            </ul>
+            <div class="instructions">
+                <h2>How to Add a New Test</h2>
+                <p>Edit this <code>index.html</code> file and insert a new
+                    <code>&lt;li&gt;</code> inside the <code>&lt;ul
+                        class="test-grid"&gt;</code>. Use the following
+                    template:</p>
+                <pre>&lt;li class="test-card"&gt;
+    &lt;a href="your-test-file.html"&gt;
+        &lt;div class="test-icon"&gt;🔹&lt;/div&gt;
+        &lt;div class="test-title"&gt;Test Name&lt;/div&gt;
+        &lt;div class="test-description"&gt;Short description of what this test covers.&lt;/div&gt;
+    &lt;/a&gt;
+&lt;/li&gt;</pre>
+                <p>Organize the tests in dificulty order, the simplest first.
+                    Create a new favicon png icon for the
+                    <code>.test-icon</code>. Keep descriptions concise (max 3
+                    lines). The grid adapts automatically.</p>
+            </div>
+
+            <footer>
+                <p>Part of the <a
+                        href="https://github.com/BrunoRNS/SimplePDFviewer"
+                        target="_blank">SimplePDFviewer</a> project. Use these
+                    pages during development to verify functionality.</p>
+            </footer>
         </div>
-
-        <div class="controls">
-            <h3>Theme Customization (Optional)</h3>
-            <input type="text" id="colorInput" placeholder="e.g. #3498DB" value="#3498DB">
-            <button onclick="changeTheme()">Change Theme</button>
-            <button onclick="changeTheme('#3498DB')">Blue (Default)</button>
-            <button onclick="changeTheme('#E91E63')">Pink</button>
-            <button onclick="changeTheme('#4CAF50')">Green</button>
-            <button onclick="changeTheme('#FF9800')">Orange</button>
-            <button onclick="changeTheme('#9C27B0')">Purple</button>
-        </div>
-
-        <div id="viewer"></div>
-
-        <!-- Change the path to your core.min.js file or to the online CDN(see README) -->
-        <script type="text/javascript" src="http://localhost:8001/core.min.js"></script>
-
-        <script type="text/javascript">
-            let viewer = null;
-            const COLOR_STORAGE_KEY = 'pdfViewer_theme';
-            const DEFAULT_COLOR = '#3498DB';
-
-            function changeTheme(color) {
-                if (!viewer) {
-                    alert('Viewer not initialized yet');
-                    return;
-                }
-                const colorInput = document.getElementById('colorInput');
-                if (color) {
-                    colorInput.value = color;
-                }
-                const colorValue = colorInput.value || DEFAULT_COLOR;
-                const success = viewer.setTheme(colorValue);
-                if (success) {
-                    localStorage.setItem(COLOR_STORAGE_KEY, colorValue);
-                    alert(`Theme changed to ${colorValue}`);
-                } else {
-                    alert(`Invalid color: ${colorValue}`);
-                }
-            }
-
-            function getSavedTheme() {
-                const saved = localStorage.getItem(COLOR_STORAGE_KEY);
-                return saved && /^#[0-9A-Fa-f]{6}$/.test(saved) ? saved : DEFAULT_COLOR;
-            }
-
-            function initializeViewer() {
-                if (typeof PDFViewer === 'undefined') {
-                    document.getElementById('status').innerHTML = `
-                        <span class="error">PDFViewer library not loaded</span>
-                    `;
-                    return;
-                }
-
-                document.getElementById('status').innerHTML = `
-                    <span class="success">SimplePDFviewer loaded from CDN successfully</span>
-                `;
-
-                const savedTheme = getSavedTheme();
-                const colorInput = document.getElementById('colorInput');
-                colorInput.value = savedTheme;
-
-                fetch('course.json')
-                    .then(response => response.json())
-                    .then(course => {
-                        viewer = PDFViewer.init(
-                            document.getElementById('viewer'),
-                            course,
-                            {
-                                colorTheme: savedTheme,
-                                onError: (error) => {
-                                    console.error('Viewer error:', error);
-                                    document.getElementById('status').innerHTML += `
-                                    <br><span class="error">
-                                        Viewer Error: ${error.message}
-                                    </span>`;
-                                }
-                            }
-                        );
-                        if (viewer) {
-                            colorInput.value = savedTheme;
-                            document.getElementById('status').innerHTML += `
-                            <br><span class="success">
-                                Viewer initialized successfully (Theme: ${savedTheme})
-                            </span>`;
-                        } else {
-                            document.getElementById('status').innerHTML += `
-                            <br><span class="error">
-                                Failed to initialize viewer
-                            </span>`;
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Error loading course:', err);
-                        document.getElementById('status').innerHTML += `
-                        <br><span class="error">
-                            Error loading course: ${err.message}
-                        </span>`;
-                        document.getElementById('viewer').innerHTML = `
-                        <p style="color:red">
-                            Error loading course. Check browser console for details.
-                        </p>`;
-                    });
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initializeViewer);
-            } else {
-                initializeViewer();
-            }
-        </script>
     </body>
 </html>

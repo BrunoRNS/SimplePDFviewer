@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SimplePDFviewer Test - CDN Loading</title>
+        <style type="text/css">
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            #viewer { height: 80dvh; border: 1px solid #ccc; }
+            .info { background: #f0f0f0; padding: 10px; margin-bottom: 20px; border-radius: 4px; }
+            .error { color: #d32f2f; }
+            .success { color: #388e3c; }
+            code { background: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+            .controls { margin-bottom: 20px; }
+            .controls button {
+                padding: 8px 15px;
+                margin-right: 10px;
+                cursor: pointer;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                background: #f0f0f0;
+            }
+            .controls button:hover { background: #e0e0e0; }
+            .controls input {
+                padding: 8px;
+                margin-right: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                width: 120px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>SimplePDFviewer Test</h1>
+        <div class="info">
+            <p>
+                Loading SimplePDFviewer from CDN: <code>http://localhost:8001/core.min.js</code>
+            </p>
+            <p id="status">Loading...</p>
+        </div>
+
+        <div class="controls">
+            <h3>Theme Customization (Optional)</h3>
+            <input type="text" id="colorInput" placeholder="e.g. #3498DB" value="#3498DB">
+            <button onclick="changeTheme()">Change Theme</button>
+            <button onclick="changeTheme('#3498DB')">Blue (Default)</button>
+            <button onclick="changeTheme('#E91E63')">Pink</button>
+            <button onclick="changeTheme('#4CAF50')">Green</button>
+            <button onclick="changeTheme('#FF9800')">Orange</button>
+            <button onclick="changeTheme('#9C27B0')">Purple</button>
+        </div>
+
+        <div id="viewer"></div>
+
+        <!-- Change the path to your core.min.js file or to the online CDN(see README) -->
+        <script type="text/javascript" src="http://localhost:8001/core.min.js"></script>
+
+        <script type="text/javascript">
+            let viewer = null;
+            const COLOR_STORAGE_KEY = 'pdfViewer_theme';
+            const DEFAULT_COLOR = '#3498DB';
+
+            function changeTheme(color) {
+                if (!viewer) {
+                    alert('Viewer not initialized yet');
+                    return;
+                }
+                const colorInput = document.getElementById('colorInput');
+                if (color) {
+                    colorInput.value = color;
+                }
+                const colorValue = colorInput.value || DEFAULT_COLOR;
+                const success = viewer.setTheme(colorValue);
+                if (success) {
+                    localStorage.setItem(COLOR_STORAGE_KEY, colorValue);
+                    alert(`Theme changed to ${colorValue}`);
+                } else {
+                    alert(`Invalid color: ${colorValue}`);
+                }
+            }
+
+            function getSavedTheme() {
+                const saved = localStorage.getItem(COLOR_STORAGE_KEY);
+                return saved && /^#[0-9A-Fa-f]{6}$/.test(saved) ? saved : DEFAULT_COLOR;
+            }
+
+            function initializeViewer() {
+                if (typeof PDFViewer === 'undefined') {
+                    document.getElementById('status').innerHTML = `
+                        <span class="error">PDFViewer library not loaded</span>
+                    `;
+                    return;
+                }
+
+                document.getElementById('status').innerHTML = `
+                    <span class="success">SimplePDFviewer loaded from CDN successfully</span>
+                `;
+
+                const savedTheme = getSavedTheme();
+                const colorInput = document.getElementById('colorInput');
+                colorInput.value = savedTheme;
+
+                fetch('course.json')
+                    .then(response => response.json())
+                    .then(course => {
+                        viewer = PDFViewer.init(
+                            document.getElementById('viewer'),
+                            course,
+                            {
+                                colorTheme: savedTheme,
+                                onError: (error) => {
+                                    console.error('Viewer error:', error);
+                                    document.getElementById('status').innerHTML += `
+                                    <br><span class="error">
+                                        Viewer Error: ${error.message}
+                                    </span>`;
+                                }
+                            }
+                        );
+                        if (viewer) {
+                            colorInput.value = savedTheme;
+                            document.getElementById('status').innerHTML += `
+                            <br><span class="success">
+                                Viewer initialized successfully (Theme: ${savedTheme})
+                            </span>`;
+                        } else {
+                            document.getElementById('status').innerHTML += `
+                            <br><span class="error">
+                                Failed to initialize viewer
+                            </span>`;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error loading course:', err);
+                        document.getElementById('status').innerHTML += `
+                        <br><span class="error">
+                            Error loading course: ${err.message}
+                        </span>`;
+                        document.getElementById('viewer').innerHTML = `
+                        <p style="color:red">
+                            Error loading course. Check browser console for details.
+                        </p>`;
+                    });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeViewer);
+            } else {
+                initializeViewer();
+            }
+        </script>
+    </body>
+</html>

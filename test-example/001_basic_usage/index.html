@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Basic Usage Example</title>
+        <link rel="icon" type="image/png" href="./favicon.png">
+    </head>
+    <body>
+        <div id="viewer" style="height: 100dvh; width: 100%;"></div>
+        <!-- Change the path to your core.min.js file or to the online CDN(see README) -->
+        <script src="http://localhost:8001/core.min.js"></script>
+        <script type="text/javascript">
+            const course = {
+                id: "courseID",
+                title: "My Course",
+                modules: [{
+                    id: "module1ID",
+                    title: "Module 1",
+                        chapters: [{
+                            id: "chapter1ID",
+                            title: "Chapter 1",
+                            // Hello World PDF from pdf.js
+                            pdf: "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/learning/helloworld.pdf"
+                        }]
+                    }]
+                };
+            PDFViewer.init(document.getElementById('viewer'), course);
+        </script>
+    </body>
+</html>

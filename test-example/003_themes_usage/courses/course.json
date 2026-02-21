@@ -1,0 +1,22 @@
+{
+  "id": "test#666",
+  "title": "Simple PDF Viewer Test Example",
+  "modules": [
+    {
+      "id": "mod#1",
+      "title": "Test Module",
+      "chapters": [
+        {
+          "id": "chap#1",
+          "title": "Chapter 1 Example",
+          "pdf": "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/learning/helloworld.pdf"
+        },
+        {
+          "id": "chap#2",
+          "title": "Chapter 2 Example",
+          "pdf": "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/learning/helloworld.pdf"
+        }
+      ]
+    }
+  ]
+}

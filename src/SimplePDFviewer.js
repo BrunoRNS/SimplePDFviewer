@@ -274,7 +274,7 @@
             .pdf-viewer-sidebar.collapsed .pdf-viewer-chapter-item { padding: 8px 0; text-align: center; }
             .pdf-viewer-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
             .pdf-viewer-controls { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 10px; background: #fff; border-bottom: 1px solid ${theme.lightBorder}; z-index: 10; }
-            .pdf-viewer-canvas-container { position: relative; flex: 1; overflow: auto; padding: 5px; background: #525659; scroll-behavior: smooth; width: 100%; display: block; box-sizing: border-box; }
+            .pdf-viewer-canvas-container { position: relative; flex: 1; overflow: auto; padding: 5px; background: ${theme.containerBg}; scroll-behavior: smooth; width: 100%; display: block; box-sizing: border-box; }
             .pdf-viewer-canvas { width: 100%; height: auto; box-shadow: 0 0 15px rgba(0,0,0,0.3); background: #fff; display: block; }
             .pdf-viewer-text-layer { position: absolute; top: 0; left: 0; right: 0; z-index: 1; user-select: text; -webkit-user-select: text; -moz-user-select: text; }
             .pdf-viewer-text-layer > span { position: absolute; white-space: nowrap; cursor: text; color: transparent; -moz-user-select: text; -webkit-user-select: text; user-select: text; margin: 0; padding: 0; border: none; background: transparent; }
@@ -297,7 +297,7 @@
             .icon-svg svg { width: 100%; height: 100%; }
             .icon-fallback { display: none; font-size: 16px; line-height: 1; font-weight: bold; }
             .pdf-viewer-main.fullscreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; display: flex; flex-direction: column; background: ${theme.sidebarPrimary}; }
-            .pdf-viewer-main.fullscreen .pdf-viewer-canvas-container { background: ${theme.sidebarPrimary}; padding: 3px; box-sizing: border-box; }
+            .pdf-viewer-main.fullscreen .pdf-viewer-canvas-container { background: ${theme.containerBg}; padding: 3px; box-sizing: border-box; }
             .pdf-viewer-main.fullscreen .pdf-viewer-controls { position: relative; background: ${theme.sidebarPrimary}; border-bottom: 3px solid ${theme.primary}; }
             .pdf-viewer-main.fullscreen .pdf-viewer-footer { position: relative; background: ${theme.sidebarPrimary}; border-top: 3px solid ${theme.primary}; color: #ccc; }
             .pdf-viewer-main.fullscreen .pdf-viewer-toggle-btn { display: none; }
@@ -326,17 +326,20 @@
         const primaryColor = validation.color;
         const primaryHsl = hexToHsl(primaryColor);
 
-        // Calculate primary color variants using proportional changes
         const primaryHoverL = Math.max(0, Math.min(100, primaryHsl.l + COLOR_RATIOS.primaryToHover));
         const primaryActiveL = Math.max(0, Math.min(100, primaryHsl.l + COLOR_RATIOS.primaryToActive));
 
-        // For sidebar, create a darker/muted variant
         const sidebarHsl = { ...primaryHsl };
-        sidebarHsl.s = Math.max(0, sidebarHsl.s - 30); // Reduce saturation
-        sidebarHsl.l = Math.max(0, Math.min(100, sidebarHsl.l - 25)); // Darken
+        sidebarHsl.s = Math.max(0, sidebarHsl.s - 30);
+        sidebarHsl.l = Math.max(0, Math.min(100, sidebarHsl.l - 25));
 
         const sidebarHoverL = Math.max(0, Math.min(100, sidebarHsl.l + COLOR_RATIOS.sidebarToHover));
         const sidebarBorderL = Math.max(0, Math.min(100, sidebarHsl.l + COLOR_RATIOS.sidebarToBorder));
+
+        const containerBg = mixColors('#f0f2f5', primaryColor, 0.15);
+
+        const lightBorder = hslToHex(primaryHsl.h, Math.max(0, primaryHsl.s - 40), 85);
+        const disabled = hslToHex(primaryHsl.h, 10, 75);
 
         return {
             primary: primaryColor,
@@ -345,10 +348,31 @@
             sidebarPrimary: hslToHex(sidebarHsl.h, sidebarHsl.s, sidebarHsl.l),
             sidebarHover: hslToHex(sidebarHsl.h, sidebarHsl.s, sidebarHoverL),
             sidebarBorder: hslToHex(sidebarHsl.h, sidebarHsl.s, sidebarBorderL),
-            containerBg: '#f0f2f5', // Keep consistent
-            disabled: '#bdc3c7', // Keep consistent
-            lightBorder: '#ddd' // Keep consistent
+            containerBg: containerBg,
+            disabled: disabled,
+            lightBorder: lightBorder
         };
+    }
+
+    /**
+     * Calculates a weighted average of two hex colors.
+     * @param {string} color1 - First hex color
+     * @param {string} color2 - Second hex color
+     * @param {number} weight - Weight of color2 in the mix (0-1)
+     * @returns {string} - The mixed color as a hex string
+     */
+    function mixColors(color1, color2, weight) {
+
+        const [r1, g1, b1] = hexToRgb(color1);
+        const [r2, g2, b2] = hexToRgb(color2);
+
+        const w = Math.max(0, Math.min(1, weight));
+        const r = Math.round(r1 * (1 - w) + r2 * w);
+        const g = Math.round(g1 * (1 - w) + g2 * w);
+        const b = Math.round(b1 * (1 - w) + b2 * w);
+
+        return rgbToHex(r, g, b);
+        
     }
 
     /**
@@ -977,8 +1001,6 @@
 
                 // Store reference for cleanup
                 instance.currentTextLayer = textLayerDiv;
-
-                console.log('Text layer rendered: ' + textContent.items.length + ' text items');
             } catch (err) {
                 console.warn('Failed to render text layer:', err);
                 // Continue gracefully - text layer is optional

@@ -25,6 +25,8 @@ jobs:
 
       - name: Run make to generate minified file
         run: make
+        env:
+          IS_WORKFLOW: true # For Makefile to skip composer check
 
       - name: Run basic test (verify file exists and has expected global)
         run: |

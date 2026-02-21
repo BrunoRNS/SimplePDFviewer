@@ -21,11 +21,12 @@ else
     MKDIR_P := mkdir -p
     EXIT_NULL := 
 endif
-
 COMPOSER := $(shell $(CHECK_CMD) podman-compose >$(NULL) 2>&1 && echo podman-compose || ($(CHECK_CMD) docker-compose >$(NULL) 2>&1 && echo docker-compose) || echo Error)
 
 ifeq ($(COMPOSER),Error)
-    $(error Neither podman-compose nor docker-compose is installed. Please install one of them to run tests.)
+    ifneq ($(IS_WORKFLOW),true)
+        $(error Neither podman-compose nor docker-compose is installed. Please install one of them to run tests.)
+    endif
 endif
 
 all: build

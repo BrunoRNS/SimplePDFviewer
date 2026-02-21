@@ -275,10 +275,11 @@
             .pdf-viewer-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
             .pdf-viewer-controls { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 10px; background: #fff; border-bottom: 1px solid ${theme.lightBorder}; z-index: 10; }
             .pdf-viewer-canvas-container { position: relative; flex: 1; overflow: auto; padding: 5px; background: #525659; scroll-behavior: smooth; width: 100%; display: block; box-sizing: border-box; }
-            .pdf-viewer-canvas { width: 100%; height: auto; box-shadow: 0 0 15px rgba(0,0,0,0.3); background: #fff; }
-            .pdf-viewer-text-layer { position: absolute; top: 0; left: 0; right: 0; z-index: 1; user-select: text; }
-            .pdf-viewer-text-layer > span { position: absolute; white-space: pre; cursor: text; color: transparent; -moz-user-select: text; -webkit-user-select: text; user-select: text; }
-            .pdf-viewer-text-layer .highlight { background: rgba(255, 255, 0, 0.3); }
+            .pdf-viewer-canvas { width: 100%; height: auto; box-shadow: 0 0 15px rgba(0,0,0,0.3); background: #fff; display: block; }
+            .pdf-viewer-text-layer { position: absolute; top: 0; left: 0; right: 0; z-index: 1; user-select: text; -webkit-user-select: text; -moz-user-select: text; }
+            .pdf-viewer-text-layer > span { position: absolute; white-space: nowrap; cursor: text; color: transparent; -moz-user-select: text; -webkit-user-select: text; user-select: text; margin: 0; padding: 0; border: none; background: transparent; }
+            .pdf-viewer-text-layer > span::selection { background: rgba(0, 0, 255, 0.3); color: transparent; }
+            .pdf-viewer-text-layer > span::-moz-selection { background: rgba(0, 0, 255, 0.3); color: transparent; }
             .pdf-viewer-text-layer.disabled { pointer-events: none; user-select: none; }
             .pdf-viewer-loading-overlay { position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; z-index: 20; }
             .pdf-viewer-footer { padding: 10px; background: #f0f0f0; border-top: 1px solid ${theme.lightBorder}; text-align: center; font-size: 12px; color: #666; }
@@ -857,7 +858,7 @@
                     });
 
                     return instance.renderTask.promise.then(() => {
-                        return renderTextLayer(page, scaledViewport);
+                        return renderTextLayer(page, scaledViewport, scale);
                     });
                 } catch (err) {
                     console.error('Error rendering page:', err);
@@ -876,12 +877,13 @@
 
         /**
          * Renders a transparent text layer for text selection.
-         * Leverages pdf.js TextLayerBuilder to create selectable text.
+         * Creates selectable text spans positioned over the PDF canvas.
          * @param {PDFPage} page - The PDF page object
          * @param {Viewport} scaledViewport - The scaled viewport for positioning
+         * @param {number} scale - The scale factor (without DPR)
          * @returns {Promise} - Resolves when text layer is rendered
          */
-        async function renderTextLayer(page, scaledViewport) {
+        async function renderTextLayer(page, scaledViewport, scale) {
             if (!instance.enableTextSelection) return;
 
             try {
@@ -895,20 +897,88 @@
                 // Get text content from the page
                 const textContent = await page.getTextContent();
 
-                // Create TextLayerBuilder instance
-                const textLayerBuilder = new pdfjsLib.TextLayerBuilder({
-                    textLayerDiv: textLayerDiv,
-                    pageIndex: page.pageIndex,
-                    viewport: scaledViewport,
-                    textContent: textContent,
-                    enhanceTextSelection: true
-                });
+                if (!textContent || !textContent.items || textContent.items.length === 0) return;
 
-                // Render the text layer
-                textLayerBuilder.render();
+                // Set the text layer size and positioning
+                const canvas = container.querySelector('.pdf-viewer-canvas');
+                if (!canvas) return;
+
+                // Match canvas dimensions exactly
+                textLayerDiv.style.width = canvas.offsetWidth + 'px';
+                textLayerDiv.style.height = canvas.offsetHeight + 'px';
+                textLayerDiv.style.top = canvas.offsetTop + 'px';
+                textLayerDiv.style.left = canvas.offsetLeft + 'px';
+
+                // Get viewport information for coordinate conversion
+                const dpr = window.devicePixelRatio || 1;
+                const baseViewport = page.getViewport({ scale: 1.0 });
+
+                // Process each text item and create spans
+                for (let item of textContent.items) {
+                    if (!item.str || item.str.trim() === '') continue;
+
+                    // Create span element for text
+                    const span = document.createElement('span');
+                    span.textContent = item.str;
+
+                    // Get transform matrix [a, b, c, d, e, f]
+                    // where: a, d = scaling; e, f = translation
+                    const transform = item.transform;
+
+                    // Extract font size from scale coefficients
+                    const fontSize = Math.max(
+                        Math.abs(transform[0]),
+                        Math.abs(transform[3]),
+                        8  // Minimum font size
+                    );
+
+                    // Extract position - convert from PDF coordinates to screen coordinates
+                    // PDF coordinates: origin at bottom-left
+                    // Screen coordinates: origin at top-left
+                    const tx = transform[4];  // x translation
+                    const ty = transform[5];  // y translation
+
+                    // Convert PDF coordinates to viewport coordinates
+                    // Apply scale to convert to actual viewport size
+                    const scaledX = tx * (scaledViewport.width / baseViewport.width);
+                    const scaledY = (baseViewport.height - ty) * (scaledViewport.height / baseViewport.height);
+
+                    // Convert to percentages for responsive positioning
+                    const xPercent = (scaledX / scaledViewport.width) * 100;
+                    const yPercent = (scaledY / scaledViewport.height) * 100;
+
+                    // Apply styles for text selection
+                    span.style.position = 'absolute';
+                    span.style.left = xPercent + '%';
+                    span.style.top = yPercent + '%';
+                    span.style.fontSize = (fontSize * scale) + 'px';
+                    span.style.fontFamily = item.fontName || 'sans-serif';
+                    span.style.color = 'transparent';
+                    span.style.whiteSpace = 'nowrap';
+                    span.style.cursor = 'text';
+                    span.style.userSelect = 'text';
+                    span.style.WebkitUserSelect = 'text';
+                    span.style.MozUserSelect = 'text';
+                    span.style.margin = '0';
+                    span.style.padding = '0';
+                    span.style.border = 'none';
+                    span.style.backgroundColor = 'transparent';
+                    span.style.display = 'inline-block';
+                    span.style.lineHeight = 'normal';
+                    span.style.pointerEvents = 'auto';
+                    span.style.transform = 'translate(-5%, -60%)';
+                    span.style.transformOrigin = 'left center';
+
+                    textLayerDiv.appendChild(span);
+                }
+
+                // Make text layer visible for selection
+                textLayerDiv.style.display = 'block';
 
                 // Store reference for cleanup
-                instance.currentTextLayer = textLayerBuilder;
+                instance.currentTextLayer = textLayerDiv;
+
+                console.log('Text layer rendered: ' + textContent.items.length + ' text items');
             } catch (err) {
                 console.warn('Failed to render text layer:', err);
                 // Continue gracefully - text layer is optional

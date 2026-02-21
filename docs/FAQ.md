@@ -34,7 +34,57 @@ For optimal experience on older browsers, consider adding polyfills for ResizeOb
 
 ### Q: Does SimplePDFviewer support text selection in PDFs?
 
-**A:** No, the viewer is designed for viewing only. Text is rendered as images on canvas. If you need full text selection, annotations, and advanced features, consider using pdf.js directly.
+**A:** Yes! SimplePDFviewer now includes **text selection support** enabled by default. Users can:
+
+- **Highlight and select text** directly from PDF pages
+- **Copy text** to clipboard with Ctrl+C / Cmd+C
+- **Paste selected text** into other applications
+- Toggle text selection on/off as needed
+
+**Text Selection Features:**
+
+- Enabled by default (no configuration needed)
+- Uses a transparent overlay that doesn't affect PDF visibility
+- Automatically renders for every page
+- Can be disabled at startup or toggled at runtime
+
+**Disable Text Selection:**
+
+```javascript
+// Option 1: Disable at initialization
+const viewer = PDFViewer.init(container, course, {
+    enableTextSelection: false
+});
+
+// Option 2: Disable after initialization
+viewer.setTextSelectionEnabled(false);
+
+// Check current state
+if (viewer.enableTextSelection) {
+    console.log('Text selection is enabled');
+}
+```
+
+**How It Works:**
+
+Text selection uses pdf.js's TextLayerBuilder to create a transparent text layer positioned on top of the PDF canvas. This allows users to select text without affecting the visual rendering of the PDF. The text layer is automatically created when each page loads and can be toggled without reloading.
+
+### Q: How does text selection affect PDF rendering performance?
+
+**A:** Text selection has minimal performance impact:
+
+- **Rendering:** The transparent text layer renders asynchronously after the PDF canvas, so it doesn't slow down page display
+- **Memory:** The text layer adds a small amount of memory for DOM elements and text content
+- **Optional:** Can be disabled entirely if not needed, eliminating any overhead
+- **Efficient:** Uses pdf.js's optimized TextLayerBuilder implementation
+
+Most users will notice no performance difference. For very large documents (500+ pages), disabling text selection can provide a minor improvement in memory usage.
+
+### Q: Can I customize the text selection appearance?
+
+**A:** Currently, text selection styling uses the browser's default selection color. You cannot customize the highlight color or make the text layer visible without disabling it. The transparent overlay design is intentional to preserve the original PDF appearance.
+
+If you need advanced text selection features (custom colors, annotations, highlighting save), consider using the full pdf.js library directly.
 
 ### Q: Can I add zoom controls to the viewer?
 

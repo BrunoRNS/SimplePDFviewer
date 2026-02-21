@@ -270,6 +270,53 @@ console.log(viewer.zoom); // e.g., 150
 
 **Note:** Zoom automatically resets to 100% when navigating to a different page or chapter for better UX.
 
+#### setTextSelectionEnabled(enabled)
+
+Enable or disable text selection at runtime. Text selection is enabled by default and allows users to select and copy text from PDFs.
+
+**Parameters:**
+
+- `enabled` (Boolean): `true` to enable text selection, `false` to disable
+
+**Example:**
+
+```javascript
+// Disable text selection
+viewer.setTextSelectionEnabled(false);
+
+// Re-enable text selection
+viewer.setTextSelectionEnabled(true);
+
+// Toggle based on user preference
+document.getElementById('toggle-selection').onclick = () => {
+    viewer.setTextSelectionEnabled(!viewer.enableTextSelection);
+};
+
+// Check current state
+if (viewer.enableTextSelection) {
+    console.log('Text selection is enabled');
+}
+```
+
+**Configuration at Initialization:**
+
+```javascript
+// Disable text selection from the start
+const viewer = PDFViewer.init(container, course, {
+    enableTextSelection: false
+});
+
+// Default behavior (enabled)
+const viewer2 = PDFViewer.init(container, course);
+```
+
+**How It Works:**
+
+- Text selection uses a transparent text layer positioned on top of the PDF canvas
+- Users can highlight and copy text without affecting the visual PDF rendering
+- The text layer is automatically rendered when each page loads
+- Text selection can be toggled at any time without reloading the PDF
+
 #### setTheme(hex)
 
 Change the theme color after initialization. Automatically calculates all UI colors from the provided hex color.
@@ -309,6 +356,7 @@ document.getElementById('colorPicker').addEventListener('change', (e) => {
 - `currentChapter` (number): Index of current chapter (0-based)
 - `currentPage` (number): Current page number (1-based)
 - `zoom` (number): Current zoom level (100-200, default 100). Automatically resets to 100 when navigating between pages or chapters
+- `enableTextSelection` (boolean): Whether text selection is currently enabled (default: true)
 - `pdfDoc` (pdfjsLib.PDFDocument): The pdf.js document object (null before loading)
 - `renderTask` (pdfjsLib.RenderTask): Current render task (null if not rendering)
 - `onError` (Function): Error callback function
@@ -792,10 +840,9 @@ Cache-Control: public, max-age=31536000
 
 ### Limitations
 
-1. **No text selection** in PDFs (by design for simplicity)
-2. **No search functionality** (use pdf.js directly if needed)
-3. **No annotations** (view-only)
-4. **Performance degrades** with very large PDFs (500+ pages per chapter)
+1. **No search functionality** (use pdf.js directly if needed)
+2. **No annotations** (view-only)
+3. **Performance degrades** with very large PDFs (500+ pages per chapter)
 
 ### Known Issues
 

@@ -16,6 +16,7 @@ A lightweight, standalone JavaScript PDF viewer library that wraps Mozilla's pdf
 - **Performance Optimized** - Debounced rendering, high-DPI support, efficient memory management.
 - **Auto-Scaling** - PDFs automatically fit container width.
 - **Zoom Controls** - Built-in zoom in/out buttons and manual zoom input (100-200%).
+- **Text Selection** - Highlight and copy text from PDFs with transparent text layer (enabled by default).
 - **Smart Navigation** - Automatic zoom and scroll reset when navigating between pages and chapters.
 - **Keyboard Navigation** - Arrow keys to navigate pages.
 - **Well-Documented** - Comprehensive guides and examples.
@@ -53,6 +54,7 @@ You now have a fully functional PDF viewer with:
 - Chapter navigation sidebar.
 - Previous/Next page buttons.
 - Zoom in/out controls with manual zoom input.
+- Text selection (highlight and copy text from PDFs).
 - Keyboard controls (arrow keys).
 - Automatic zoom and scroll reset on navigation.
 - Responsive mobile design.
@@ -191,6 +193,28 @@ viewer.setZoom(150);
 
 // Zoom resets automatically when navigating pages
 viewer.nextPage(); // zoom resets to 100%
+```
+
+### Text Selection
+
+```javascript
+// Text selection is enabled by default
+const viewer = PDFViewer.init(container, course);
+
+// Users can now highlight and copy text from PDFs
+// Disable text selection if needed
+const viewer2 = PDFViewer.init(container, course, {
+  enableTextSelection: false
+});
+
+// Toggle text selection at runtime
+viewer.setTextSelectionEnabled(false);  // Disable
+viewer.setTextSelectionEnabled(true);   // Re-enable
+
+// Check current state
+if (viewer.enableTextSelection) {
+  console.log('Text selection is enabled');
+}
 ```
 
 ### Error Handling

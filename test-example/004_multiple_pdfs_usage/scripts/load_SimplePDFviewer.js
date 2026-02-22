@@ -43,12 +43,11 @@ function initializeViewer(courseIndex) {
         viewer = PDFViewer.init(container, window.courses[courseIndex]);
         if (viewer) {
             currentCourseIndex = courseIndex;
+            viewer.setTextSelectionEnabled(false);
             setStatus(`Loaded: ${window.courses[courseIndex].title || `Course ${courseIndex}`}`, 'success');
         } else {
             setStatus('Failed to initialize viewer.', 'error');
         }
-        // For better UX in this example, disable text selection
-        viewer.setTextSelectionEnabled(false);
     } catch (err) {
         console.error('Error initializing viewer:', err);
         setStatus('Error initializing viewer.', 'error');

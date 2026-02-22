@@ -3,6 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Version](https://img.shields.io/badge/Version-rolling-blue.svg)
 ![Browser Support](https://img.shields.io/badge/Browser-Modern%20+%20Mobile-brightgreen.svg)
+[![CDN](https://img.shields.io/badge/CDN-jsdelivr-green.svg)](https://cdn.jsdelivr.net/gh/BrunoRNS/SimplePDFviewer@latest/min/core.min.js)
 
 A lightweight, standalone JavaScript PDF viewer library that wraps Mozilla's pdf.js with a modular course/chapter interface and responsive UI. Perfect for viewing educational materials, documentation, and multi-chapter documents.
 

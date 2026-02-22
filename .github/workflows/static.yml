@@ -31,6 +31,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: jsDelivr Cache Purge
+        uses: kaycodes13/purge-jsdelivr-cache@v1.1.0
+        with:
+          url: https://cdn.jsdelivr.net/gh/BrunoRNS/SimplePDFviewer@latest/min/core.min.js
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

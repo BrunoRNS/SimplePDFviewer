@@ -22,7 +22,6 @@
     let isLibLoading = false;
     const initQueue = [];
 
-    // Session-only storage for anonymous/private browsing mode
     const memoryStorage = {};
 
     /**
@@ -97,11 +96,9 @@
         return `<span class="icon-svg">${icon.svg}</span><span class="icon-fallback" role="img">${icon.fallback}</span>`;
     }
 
-    // Configuration constants
-    const MIN_TOUCH_TARGET_SIZE = 44; // px for accessibility
-    const RENDER_DEBOUNCE_DELAY = 150; // ms
+    const MIN_TOUCH_TARGET_SIZE = 44;
+    const RENDER_DEBOUNCE_DELAY = 150;
 
-    // Default theme colors
     const DEFAULT_THEME = {
         primary: '#3498db',
         primaryHover: '#2980b9',
@@ -114,9 +111,8 @@
         lightBorder: '#ddd'
     };
 
-    // Proportional relationships (calculated from default colors)
     const COLOR_RATIOS = {
-        primaryToHover: -18, // Lightness change percentage
+        primaryToHover: -18,
         primaryToActive: -36,
         sidebarToHover: 8,
         sidebarToBorder: -8
@@ -236,12 +232,11 @@
         const hsl = hexToHsl(hex);
         const lightness = hsl.l;
 
-        // Auto-adjust if too dark or too bright
         let adjustedL = lightness;
         if (lightness < 15) {
-            adjustedL = 25; // Minimum usable lightness
+            adjustedL = 25;
         } else if (lightness > 85) {
-            adjustedL = 75; // Maximum usable lightness
+            adjustedL = 75;
         }
 
         const adjustedHex = hslToHex(hsl.h, hsl.s, adjustedL);
@@ -637,12 +632,10 @@
 
             if (!prevBtn || !nextBtn || !instance.pdfDoc) return;
 
-            // Check if at beginning (first page of first chapter)
             const isAtBeginning = instance.currentPage === 1 &&
                 instance.currentChapter === 0 &&
                 instance.currentModule === 0;
 
-            // Check if at end (last page of last chapter)
             const isLastChapterOfModule = instance.currentModule === course.modules.length - 1 &&
                 instance.currentChapter === course.modules[instance.currentModule].chapters.length - 1;
             const isAtEnd = instance.currentPage === instance.pdfDoc.numPages && isLastChapterOfModule;
@@ -693,7 +686,6 @@
 
         const toggleLoading = (show) => loading.style.display = show ? 'flex' : 'none';
 
-        // Scroll lock to prevent automatic scroll restoration during navigation
         let isNavigating = false;
 
         /**
@@ -701,27 +693,22 @@
          * Forces scroll to 0 using multiple aggressive methods
          */
         const resetScroll = () => {
-            // Step 1: Disable scroll-behavior to prevent smooth scroll interference
             const originalScrollBehavior = canvasContainer.style.scrollBehavior;
             canvasContainer.style.scrollBehavior = 'auto';
 
-            // Step 2: Multiple simultaneous scroll reset methods
             canvasContainer.scrollTop = 0;
             canvasContainer.scrollLeft = 0;
             canvasContainer.scroll(0, 0);
             canvasContainer.scrollTo(0, 0);
 
-            // Step 3: Aggressive continuous locking during rendering
             let lockCount = 0;
             const maxLocks = 15;
 
             const forceLock = () => {
                 if (lockCount < maxLocks & isNavigating) {
-                    // Read current position
                     const currentTop = canvasContainer.scrollTop;
                     const currentLeft = canvasContainer.scrollLeft;
 
-                    // If not at 0, force it back
                     if (currentTop !== 0 || currentLeft !== 0) {
                         canvasContainer.scrollTop = 0;
                         canvasContainer.scrollLeft = 0;
@@ -736,10 +723,8 @@
 
             requestAnimationFrame(forceLock);
 
-            // Step 4: Final cleanup and release after 600ms
             setTimeout(() => {
                 isNavigating = false;
-                // Restore original scroll-behavior
                 canvasContainer.style.scrollBehavior = originalScrollBehavior;
             }, 600);
         };
@@ -780,12 +765,10 @@
          * @param {number} newZoom - Zoom level (100-200)
          */
         function applyZoom(newZoom) {
-            // Validate zoom (100-200, integer only)
             newZoom = Math.max(100, Math.min(200, Math.floor(newZoom)));
 
             if (newZoom === instance.zoom) return;
 
-            // Save current scroll position relative to content
             const scrollContainer = canvasContainer;
             const scrollRatio = {
                 x: scrollContainer.scrollWidth > 0 ? scrollContainer.scrollLeft / scrollContainer.scrollWidth : 0,
@@ -794,7 +777,6 @@
 
             instance.zoom = newZoom;
 
-            // Update UI
             const zoomInput = container.querySelector('.zoom-input');
             if (zoomInput) zoomInput.value = newZoom + '%';
 
@@ -805,9 +787,7 @@
 
             updateZoomUI();
 
-            // Re-render page with new zoom
             renderPage(instance.currentPage).then(() => {
-                // Restore scroll position proportionally
                 setTimeout(() => {
                     if (scrollContainer.scrollWidth > 0) {
                         scrollContainer.scrollLeft = scrollRatio.x * scrollContainer.scrollWidth;
@@ -848,11 +828,9 @@
 
             return instance.pdfDoc.getPage(num).then(page => {
                 try {
-                    // Get available width from parent container
                     const container = canvas.parentElement;
                     let availableWidth = container.clientWidth;
 
-                    // Remove padding from available width for calculation
                     const styles = window.getComputedStyle(container);
                     const paddingLeft = parseFloat(styles.paddingLeft) || 0;
                     const paddingRight = parseFloat(styles.paddingRight) || 0;
@@ -861,10 +839,8 @@
                     const dpr = window.devicePixelRatio || 1;
                     const viewport = page.getViewport({ scale: 1.0 });
 
-                    // Calculate scale to fit available width with zoom applied
                     let scale = (availableWidth / viewport.width) * (instance.zoom / 100);
 
-                    // Ensure scale is at least 1.0 to avoid unnecessary horizontal scroll at 100% zoom
                     if (instance.zoom <= 100) {
                         scale = Math.max(1.0, scale);
                     }
@@ -911,67 +887,48 @@
             if (!instance.enableTextSelection) return;
 
             try {
-                // Get the text layer container
                 const textLayerDiv = container.querySelector('.pdf-viewer-text-layer');
                 if (!textLayerDiv) return;
 
-                // Clear previous text layer
                 textLayerDiv.innerHTML = '';
 
-                // Get text content from the page
                 const textContent = await page.getTextContent();
 
                 if (!textContent || !textContent.items || textContent.items.length === 0) return;
 
-                // Set the text layer size and positioning
                 const canvas = container.querySelector('.pdf-viewer-canvas');
                 if (!canvas) return;
 
-                // Match canvas dimensions exactly
                 textLayerDiv.style.width = canvas.offsetWidth + 'px';
                 textLayerDiv.style.height = canvas.offsetHeight + 'px';
                 textLayerDiv.style.top = canvas.offsetTop + 'px';
                 textLayerDiv.style.left = canvas.offsetLeft + 'px';
 
-                // Get viewport information for coordinate conversion
-                const dpr = window.devicePixelRatio || 1;
                 const baseViewport = page.getViewport({ scale: 1.0 });
 
-                // Process each text item and create spans
                 for (let item of textContent.items) {
                     if (!item.str || item.str.trim() === '') continue;
 
-                    // Create span element for text
                     const span = document.createElement('span');
                     span.textContent = item.str;
 
-                    // Get transform matrix [a, b, c, d, e, f]
-                    // where: a, d = scaling; e, f = translation
                     const transform = item.transform;
 
-                    // Extract font size from scale coefficients
                     const fontSize = Math.max(
                         Math.abs(transform[0]),
                         Math.abs(transform[3]),
-                        8  // Minimum font size
+                        8
                     );
 
-                    // Extract position - convert from PDF coordinates to screen coordinates
-                    // PDF coordinates: origin at bottom-left
-                    // Screen coordinates: origin at top-left
-                    const tx = transform[4];  // x translation
-                    const ty = transform[5];  // y translation
+                    const tx = transform[4];
+                    const ty = transform[5];
 
-                    // Convert PDF coordinates to viewport coordinates
-                    // Apply scale to convert to actual viewport size
                     const scaledX = tx * (scaledViewport.width / baseViewport.width);
                     const scaledY = (baseViewport.height - ty) * (scaledViewport.height / baseViewport.height);
 
-                    // Convert to percentages for responsive positioning
                     const xPercent = (scaledX / scaledViewport.width) * 100;
                     const yPercent = (scaledY / scaledViewport.height) * 100;
 
-                    // Apply styles for text selection
                     span.style.position = 'absolute';
                     span.style.left = xPercent + '%';
                     span.style.top = yPercent + '%';
@@ -996,14 +953,11 @@
                     textLayerDiv.appendChild(span);
                 }
 
-                // Make text layer visible for selection
                 textLayerDiv.style.display = 'block';
-
-                // Store reference for cleanup
                 instance.currentTextLayer = textLayerDiv;
+
             } catch (err) {
                 console.warn('Failed to render text layer:', err);
-                // Continue gracefully - text layer is optional
             }
         }
 
@@ -1157,7 +1111,6 @@
         }
 
 
-        // Debounced resize render to prevent excessive rendering
         const debouncedRender = debounce(() => {
             if (instance.pdfDoc) renderPage(instance.currentPage);
         }, RENDER_DEBOUNCE_DELAY);
@@ -1168,22 +1121,20 @@
         const fullscreenBtn = container.querySelector('.fullscreen-btn');
         const canvasContainer = container.querySelector('.pdf-viewer-canvas-container');
 
-        // Focus listener - clicking PDF area gives it focus for scroll control
         canvasContainer.addEventListener('click', () => canvasContainer.focus());
-
-        // Scroll lock listener - prevents scroll restoration during navigation
         canvasContainer.addEventListener('scroll', scrollLockHandler, true);
 
-        // Fullscreen state management
         instance.isFullscreen = false;
 
-        // Sidebar collapse state management
         const SIDEBAR_STORAGE_KEY = 'pdfViewer_sidebarCollapsed';
         instance.sidebarCollapsed = Storage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
         if (instance.sidebarCollapsed) {
             sidebar.classList.add('collapsed');
         }
 
+        /**
+         * Toggles the PDF viewer between normal and full screen modes
+         */
         function toggleFullscreen() {
             instance.isFullscreen = !instance.isFullscreen;
             const pdfContainer = container.querySelector('.pdf-viewer-main');
@@ -1201,13 +1152,10 @@
         prevBtn.onclick = goToPrev;
         fullscreenBtn.onclick = toggleFullscreen;
         toggleBtn.onclick = () => {
-            // On mobile: toggle sidebar visibility (open/close)
-            // On desktop: toggle sidebar collapse state
             if (window.innerWidth < 768) {
                 const isOpen = sidebar.classList.toggle('open');
                 toggleBtn.setAttribute('aria-expanded', isOpen);
             } else {
-                // Desktop: toggle collapse state
                 instance.sidebarCollapsed = !instance.sidebarCollapsed;
                 sidebar.classList.toggle('collapsed');
                 Storage.setItem(SIDEBAR_STORAGE_KEY, instance.sidebarCollapsed);
@@ -1215,7 +1163,6 @@
             }
         };
 
-        // Zoom controls
         const zoomOutBtn = container.querySelector('.zoom-out-btn');
         const zoomInBtn = container.querySelector('.zoom-in-btn');
         const zoomInput = container.querySelector('.zoom-input');
@@ -1255,39 +1202,36 @@
             }
         };
 
-        // Store event listener for cleanup
         instance.listeners.keyHandler = keyHandler;
 
         document.addEventListener('keydown', keyHandler);
 
-        // Focus-based scroll handler to prevent overflow scrolling
+        /**
+         * Mouse wheel event handler for navigating PDF pages when the PDF container is in focus.
+         * Prevents default page scrolling when the user is at the top or bottom of the PDF container and tries to scroll outward.
+         * @param {WheelEvent} e - The event object.
+         * @returns {void}
+         */
         const wheelHandler = (e) => {
-            // Only handle scroll when PDF container has focus
             if (canvasContainer === document.activeElement || canvasContainer.contains(e.target)) {
-                // PDF container has focus
                 const container = canvasContainer;
                 const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 1;
                 const isAtTop = container.scrollTop === 0;
                 const scrollingDown = e.deltaY > 0;
                 const scrollingUp = e.deltaY < 0;
 
-                // Prevent default if we're at the boundaries and trying to scroll outward
                 if ((isAtBottom && scrollingDown) || (isAtTop && scrollingUp)) {
                     e.preventDefault();
                 }
                 return;
             }
-            // Outside PDF focus - allow page scroll normally
         };
 
         instance.listeners.wheelHandler = wheelHandler;
-        // Use non-passive listener to allow preventDefault
         canvasContainer.addEventListener('wheel', wheelHandler, { passive: false });
 
         const ro = new ResizeObserver(debouncedRender);
         ro.observe(canvas.parentElement);
-
-        // Store ResizeObserver for cleanup
         instance.resizeObserver = ro;
 
         /**
@@ -1331,6 +1275,7 @@
 
         return instance;
     }
-
+    
     global.PDFViewer = { init };
+
 })(window);

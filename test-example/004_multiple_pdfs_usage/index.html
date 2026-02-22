@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SimplePDFviewer - Course Selector</title>
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <link rel="stylesheet" href="./styles/styles.css">
+    <!-- 
+    Loading SimplePDFviewer in heading, before loading the full page.
+    In production, use CDN or local path as per README instructions.
+    -->
+    <script src="http://localhost:8001/core.min.js"></script>
+</head>
+<body>
+    <div class="app-header">
+        <h1>SimplePDFviewer</h1>
+        <div class="control-panel" id="controlPanel">
+            <div class="panel-header" id="panelHeader">
+                <span class="panel-title">Course Selector</span>
+                <button class="collapse-btn" id="collapseToggle" aria-label="Toggle panel">-</button>
+            </div>
+            <div class="panel-body" id="panelBody">
+                <div class="form-group">
+                    <label for="courseSelect">Select Course:</label>
+                    <select id="courseSelect" class="course-select"></select>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" id="loadBtn">Load Course</button>
+                    <button class="btn btn-secondary" id="unloadBtn">Unload</button>
+                </div>
+                <div class="status" id="statusMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewer" class="viewer-container"></div>
+    <script src="./scripts/load_courses.js"></script>
+    <script src="./scripts/load_SimplePDFviewer.js"></script>
+</body>
+</html>

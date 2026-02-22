@@ -1,0 +1,44 @@
+{
+  "id": "simple-samples-course",
+  "title": "Simple PDF Samples Course",
+  "modules": [
+    {
+      "id": "module-single-page",
+      "title": "Single Page PDF Module",
+      "chapters": [
+        {
+          "id": "lorem-ipsum-single-page",
+          "title": "Lorem Ipsum - single page",
+          "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/lorem-ipsum.pdf"
+        }
+      ]
+    },
+    {
+      "id": "module-multi-page",
+      "title": "Multi-Page PDF Module",
+      "chapters": [
+        {
+          "id": "lorem-ipsum-multi-page",
+          "title": "Lorem Ipsum - multi page",
+          "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/lorem24page.pdf"
+        }
+      ]
+    },
+    {
+      "id": "different-font-family-and-size",
+      "title": "Different Font Family and Size",
+      "chapters": [
+        {
+            "id": "different-font-family-and-size-chapter",
+            "title": "Different Font Family and Size",
+            "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/samplePDF.pdf"
+        },
+        {
+            "id": "different-colors-and-styles-fonts",
+            "title": "Different Colors and Styles Fonts",
+            "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/samplePDFColors.pdf"
+        }
+      ]
+    }
+  ]
+}

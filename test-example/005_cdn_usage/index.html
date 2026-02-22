@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SimplePDFviewer - CDN test example</title>
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <link rel="stylesheet" href="./styles/styles.css">
+    <!-- Loading SimplePDFviewer via CDN(jsdelivr) -->
+    <script src="https://cdn.jsdelivr.net/gh/BrunoRNS/SimplePDFviewer@latest/min/core.min.js"></script>
+</head>
+<body>
+    <div class="app-header">
+        <h1>SimplePDFviewer</h1>
+        <div class="control-panel" id="controlPanel">
+            <div class="panel-header" id="panelHeader">
+                <span class="panel-title">Course & Theme</span>
+                <button class="collapse-btn" id="collapseToggle" aria-label="Toggle panel">-</button>
+            </div>
+            <div class="panel-body" id="panelBody">
+                <div class="form-group">
+                    <label for="courseSelect">Select Course:</label>
+                    <select id="courseSelect" class="course-select"></select>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" id="loadBtn">Load Course</button>
+                    <button class="btn btn-secondary" id="unloadBtn">Unload</button>
+                </div>
+
+                <div class="theme-section">
+                    <h4>Theme</h4>
+                    <div class="theme-controls">
+                        <input type="text" id="colorInput" class="color-input" placeholder="#3498DB" value="#3498DB">
+                        <button class="btn btn-primary" id="applyThemeBtn">Apply</button>
+                    </div>
+                    <div class="theme-presets">
+                        <button class="preset-btn" data-color="#3498DB" style="background:#3498DB;" title="Blue"></button>
+                        <button class="preset-btn" data-color="#E91E63" style="background:#E91E63;" title="Pink"></button>
+                        <button class="preset-btn" data-color="#4CAF50" style="background:#4CAF50;" title="Green"></button>
+                        <button class="preset-btn" data-color="#FF9800" style="background:#FF9800;" title="Orange"></button>
+                        <button class="preset-btn" data-color="#9C27B0" style="background:#9C27B0;" title="Purple"></button>
+                    </div>
+                </div>
+
+                <div class="status" id="statusMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewer" class="viewer-container"></div>
+
+    <script src="./scripts/load_courses.js"></script>
+    <script src="./scripts/load_SimplePDFviewer.js"></script>
+</body>
+</html>

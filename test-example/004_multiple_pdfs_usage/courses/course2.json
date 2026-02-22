@@ -1,0 +1,43 @@
+{
+    "id": "intermediate-samples-course",
+    "title": "Intermediate PDF Samples Course",
+    "modules": [
+        {
+            "id": "module-multi-page-different-fonts",
+            "title": "Multi-Page PDF with Different Fonts",
+            "chapters": [
+                {
+                    "id": "lorem-ipsum-multi-page",
+                    "title": "Lorem Ipsum - multi page",
+                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/lorem24page.pdf"
+                },
+                {
+                    "id": "different-font-family-and-size-chapter",
+                    "title": "Different Font Family and Size",
+                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/samplePDF.pdf"
+                },
+                {
+                    "id": "different-colors-and-styles-fonts",
+                    "title": "Different Colors and Styles Fonts",
+                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/samplePDFColors.pdf"
+                }
+            ]
+        },
+        {
+            "id": "module-images-and-icons",
+            "title": "PDF with Images and Icons",
+            "chapters": [
+                {
+                    "id": "pdf-with-images-and-icons",
+                    "title": "PDF with Images and Icons",
+                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/ImagesAndIcons.pdf"
+                },
+                {
+                    "id": "pdf-with-grid-layout-images",
+                    "title": "PDF with Grid Layout and Images",
+                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/FontsImagesGrid.pdf"
+                }
+            ]
+        }
+    ]
+}

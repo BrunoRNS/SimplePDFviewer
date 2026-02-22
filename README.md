@@ -6,6 +6,12 @@
 
 A lightweight, standalone JavaScript PDF viewer library that wraps Mozilla's pdf.js with a modular course/chapter interface and responsive UI. Perfect for viewing educational materials, documentation, and multi-chapter documents.
 
+## Preview
+
+![Preview](./docs/preview.png)
+
+Access the **[Live Demo](https://brunorns.github.io/SimplePDFviewer/)** for a real-time preview.
+
 ## Features
 
 - **Modular Interface** - Organize PDFs into courses, modules, and chapters.

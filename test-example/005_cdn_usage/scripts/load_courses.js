@@ -1,4 +1,5 @@
 (async function() {
+    
     window.courses = {};
 
     try {
@@ -26,4 +27,5 @@
     }
 
     window.dispatchEvent(new CustomEvent('coursesLoaded'));
+
 })();

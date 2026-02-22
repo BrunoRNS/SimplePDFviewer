@@ -9,7 +9,7 @@
                 {
                     "id": "pdf-with-different-sizes-and-layouts",
                     "title": "PDF with Different Sizes and Layouts",
-                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/differentSizes.pdf"
+                    "pdf": "https://brunorns.github.io/SimplePDFviewer/pdfs/differentSizes.pdf"
                 }
             ]
         },
@@ -20,12 +20,12 @@
                 {
                     "id": "large-pdf-chapter",
                     "title": "Large PDF with Multiple pages - Dictionary",
-                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/largePDF.pdf"
+                    "pdf": "https://brunorns.github.io/SimplePDFviewer/pdfs/largePDF.pdf"
                 },
                 {
                     "id": "large-pdf-chapter-2",
                     "title": "Large PDF with Multiple pages - Essay",
-                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/essay.pdf"
+                    "pdf": "https://brunorns.github.io/SimplePDFviewer/pdfs/essay.pdf"
                 }
             ]
         },
@@ -36,7 +36,7 @@
                 {
                     "id": "b-format-pdf-chapter",
                     "title": "B Format PDF with Multiple pages",
-                    "pdf": "http://localhost:8000/004_multiple_pdfs_usage/pdfs/b-format.pdf"
+                    "pdf": "https://brunorns.github.io/SimplePDFviewer/pdfs/b-format.pdf"
                 }
             ]
         }
